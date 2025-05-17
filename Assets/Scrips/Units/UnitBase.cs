@@ -1,16 +1,24 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitBase : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public Dictionary<PartType, PartStatus> Parts = new();
 
-    // Update is called once per frame
-    void Update()
+    public void TakeDamage(PartType part, int damage)
     {
-        
+        if (Parts.TryGetValue(part, out PartStatus status))
+
+        {
+            status.currentHP = Mathf.Max(0, status.currentHP - damage);
+            if (status.IsBroken)
+            {
+                OnPartBroken(part);
+            }
+        }
+    }
+    protected virtual void OnPartBroken(PartType part)
+    {
+
     }
 }

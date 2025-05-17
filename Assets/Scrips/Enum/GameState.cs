@@ -2,15 +2,20 @@ using UnityEngine;
 
 public class GameState : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+}
+public enum PartType
+{
+    Head,
+    Body,
+    LeftArm,
+    RightArm,
+    Leg
+}
+[System.Serializable]
+public class PartStatus
+{
+    public int maxHP;
+    public int currentHP;
+    public bool IsBroken => currentHP <= 0;
 }
