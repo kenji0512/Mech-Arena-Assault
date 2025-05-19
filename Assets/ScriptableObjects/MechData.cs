@@ -1,7 +1,6 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
-[CreateAssetMenu(menuName = "Mech/MechData")] 
+[CreateAssetMenu(menuName = "Mech/MechData")]
 public class MechData : ScriptableObject
 {
     public string unitName;

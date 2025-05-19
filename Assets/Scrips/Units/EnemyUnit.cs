@@ -8,7 +8,14 @@ public class EnemyUnit : UnitBase
         base.Awake(); 
         enemyAI = new DefaultEnemyAI();
     }
-    public void ExcutEnemyTurn()
+    protected override void OnUnitDestroyed()
+    {
+        base.OnUnitDestroyed();
+        IsDestroyed = true;
+        gameObject.SetActive(false); // またはアニメーション再生など
+    }
+
+    public void ExecuteEnemyTurn()
     {
         enemyAI?.DecideAction(this);
     }
