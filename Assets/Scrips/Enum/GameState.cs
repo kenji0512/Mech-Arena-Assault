@@ -19,3 +19,9 @@ public class PartStatus
     public int currentHP;
     public bool IsBroken => currentHP <= 0;
 }
+[System.Serializable]
+public class PartData
+{
+    public PartType type;
+    public int maxHP;
+}
