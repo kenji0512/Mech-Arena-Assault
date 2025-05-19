@@ -1,16 +1,20 @@
 using UnityEngine;
 
-public class EnemyUnit : MonoBehaviour
+public class EnemyUnit : UnitBase
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private IEnemyAI enemyAI;
+    protected override void Awake()
     {
-        
+        base.Awake(); 
+        enemyAI = new DefaultEnemyAI();
     }
-
-    // Update is called once per frame
-    void Update()
+    public void ExcutEnemyTurn()
     {
-        
+        enemyAI?.DecideAction(this);
+    }
+    // “GAI‚ÌØ‚è‘Ö‚¦‚âŒÂ‘Ì‚²‚Æ‚Ì‹““®Šg’£‚à‰Â”\
+    public void SetAI(IEnemyAI newAI)
+    {
+        enemyAI = newAI;
     }
 }
