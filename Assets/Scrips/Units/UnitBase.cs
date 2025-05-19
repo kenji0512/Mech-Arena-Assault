@@ -4,6 +4,7 @@ using UnityEngine;
 public class UnitBase : MonoBehaviour
 {
     public Dictionary<PartType, PartStatus> Parts = new();
+    public bool IsDestroyed { get; protected set; } = false;
     [SerializeField] protected MechData mechData;
     public string UnitName => mechData.unitName;
 
@@ -38,9 +39,9 @@ public class UnitBase : MonoBehaviour
     protected virtual void OnUnitDestroyed()
     {
         Debug.Log($"{UnitName} は撃破された！");
+
         // ゲームから除外、演出再生など
     }
-    public Dictionary<PartType, PartStatus> Part { get; protected set; } = new();
 
     protected virtual void InitParts()
     {
