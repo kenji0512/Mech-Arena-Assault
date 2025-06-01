@@ -1,8 +1,12 @@
+using System.ComponentModel.Design;
+using System.Windows.Input;
 using UnityEngine;
 
 public class PlayerUnit : UnitBase
 {
-    public bool HasSelectedCommand { get; private set; }
+    public bool HasSelectedCommand { get; private set; } = false;
+    public ICommand SelectedCommand { get; private set; }
+
 
     protected override void Awake()
     {
@@ -18,6 +22,13 @@ public class PlayerUnit : UnitBase
 
     public void SelectCommand()
     {
+        HasSelectedCommand = false;
+        // UIを開いてプレイヤーに入力させる
+        CommandUI.Instance.Open(this, command =>
+        {
+            SelectedCommand = command;
+            HasSelectedCommand = true;
+        });
         // 本来は UI から選ばせるが、今回は即決定
         Debug.Log($"{gameObject.name} が攻撃コマンドを選択");
         HasSelectedCommand = true;
