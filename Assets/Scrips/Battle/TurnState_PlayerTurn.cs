@@ -1,6 +1,6 @@
 ﻿using UniRx;
 using UnityEngine;
-
+//UIでコマンド選ばせるフェーズ
 public class TurnState_PlayerTurn : ITurnState
 {
     private TurnManager _turnManager;
@@ -16,7 +16,7 @@ public class TurnState_PlayerTurn : ITurnState
         // 入力を受け付け、コマンド選択開始
         // ここでPlayerUnitに選択させる
         Transform playerParent = GameObject.Find("PlayerUnits").transform;
-        PlayerUnit[] playerUnits = playerParent.GetComponentsInChildren<PlayerUnit>(true); // 非アクティブな子も含めるなら true
+        _playerUnit = playerParent.GetComponentsInChildren<PlayerUnit>(true);
         _currentIndex = 0;
 
         // とりあえず全員に自動でコマンド選ばせる（後でUI連携）
@@ -39,7 +39,7 @@ public class TurnState_PlayerTurn : ITurnState
         PlayerUnit player = _playerUnit[_currentIndex];
         player.SelectCommand();
 
-        //選択完了を監視
+        //コマンド選択完了を監視(UniRx)
         Observable.EveryUpdate()
             .Where(_ => player.HasSelectedCommand)
             .Take(1)
@@ -51,14 +51,14 @@ public class TurnState_PlayerTurn : ITurnState
     }
     public void Execute()
     {        // 全ユニットがコマンド選択完了したら
-        if (AllPlayerUnitsSelected())
-        {
-            _turnManager.ChangeState(BattleState.PlayerAction);
-        }
+        //if (AllPlayerUnitsSelected())
+        //{
+        //    _turnManager.ChangeState(BattleState.PlayerAction);
+        //}
     }
     public void Exit()
     {
-        Debug.Log("プレイヤーターン終了");
+        Debug.Log("プレイヤー選択終了");
     }
     private bool AllPlayerUnitsSelected()
     {

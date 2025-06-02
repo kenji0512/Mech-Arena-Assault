@@ -30,10 +30,12 @@ public class TurnManager : MonoBehaviour
     }
     public void ChangeState(BattleState newState)
     {
+        Debug.Log($"ó‘Ô‘JˆÚ: {_state.Value} ¨ {newState}");
+
         _currentState?.Exit();
         _currentState = _states[newState];
-        _currentState.Enter();
         _state.Value = newState;
+        _currentState.Enter();
     }
     public void Update()
     {

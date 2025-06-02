@@ -1,12 +1,10 @@
-using System.ComponentModel.Design;
-using System.Windows.Input;
 using UnityEngine;
 
 public class PlayerUnit : UnitBase
 {
-    public bool HasSelectedCommand { get; private set; } = false;
     public ICommand SelectedCommand { get; private set; }
-
+    public bool IsDefending { get; set; } = false;
+    public bool HasSelectedCommand { get; private set; } = false;
 
     protected override void Awake()
     {
@@ -28,10 +26,12 @@ public class PlayerUnit : UnitBase
         {
             SelectedCommand = command;
             HasSelectedCommand = true;
+            Debug.Log($"{gameObject.name} が {command.GetType().Name} を選択");
         });
         // 本来は UI から選ばせるが、今回は即決定
-        Debug.Log($"{gameObject.name} が攻撃コマンドを選択");
-        HasSelectedCommand = true;
+        //Debug.Log($"{gameObject.name} が攻撃コマンドを選択");
+        //HasSelectedCommand = true;
+
     }
 
     public void ExecutePlayerAction()
@@ -51,6 +51,19 @@ public class PlayerUnit : UnitBase
     // UI連携や入力処理用メソッドなど必要に応じて追加
     public void ResetCommand()
     {
+        SelectedCommand = null;
         HasSelectedCommand = false;
+        IsDefending = false;// ターン終了時にリセット
     }
+    public override void TakeDamage(PartType part, int damage)
+    {
+        if (IsDefending)
+        {
+            damage /= 2; // 防御中はダメージ半減
+            Debug.Log($"{name} は防御していたため、ダメージを半減！");
+        }
+
+        base.TakeDamage(part, damage);
+    }
+
 }
