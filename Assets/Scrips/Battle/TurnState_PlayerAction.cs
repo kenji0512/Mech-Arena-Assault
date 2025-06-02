@@ -1,6 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
-
+//選ばれたコマンドを実行するフェーズ
 public class TurnState_PlayerAction : ITurnState
 {
     private TurnManager _turnManager;

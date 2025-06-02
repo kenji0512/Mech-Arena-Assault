@@ -12,7 +12,7 @@ public class UnitBase : MonoBehaviour
     {
         InitParts();
     }
-    public void TakeDamage(PartType part, int damage)
+    public virtual void TakeDamage(PartType part, int damage)
     {
         if (!Parts.ContainsKey(part)) return;
 
