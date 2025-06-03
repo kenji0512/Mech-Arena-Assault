@@ -25,6 +25,7 @@ public class PartData
     public PartType type;
     public int maxHP;
 }
+
 public enum BattleState
 {
     Init,           // ‰Šú‰»
