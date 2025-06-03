@@ -7,7 +7,7 @@ public class TurnManager : MonoBehaviour
     private Dictionary<BattleState, ITurnState> _states = new();
     private ITurnState _currentState;
     private readonly ReactiveProperty<BattleState> _state = new();
-    public bool IsPlayerWin {  get; private set; }
+    public bool IsPlayerWin { get; private set; }
 
     public IReadOnlyReactiveProperty<BattleState> State => _state;
 
