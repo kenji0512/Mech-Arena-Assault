@@ -29,7 +29,7 @@ public class CommandUI : MonoBehaviour
         _attackButton.onClick.AddListener(() =>
         {
             _onCommandSelected?.Invoke(new AttackCommand());
-            Close();
+            //Close();
         });
 
         defendButton.onClick.RemoveAllListeners();
