@@ -1,10 +1,17 @@
+using System.Collections.Generic;
+using UnityEditor.Splines;
 using UnityEngine;
 
 public class PlayerUnit : UnitBase
 {
     public ICommand SelectedCommand { get; private set; }
     public bool IsDefending { get; set; } = false;
+
+    private EnemyUnit _selectedTarget;
+
     public bool HasSelectedCommand { get; private set; } = false;
+    [SerializeField] private TargetSelectionUIManager _targetUI;
+
 
     protected override void Awake()
     {
@@ -25,13 +32,32 @@ public class PlayerUnit : UnitBase
         CommandUI.Instance.Open(this, command =>
         {
             SelectedCommand = command;
-            HasSelectedCommand = true;
+            //HasSelectedCommand = true;
             Debug.Log($"{gameObject.name} が {command.GetType().Name} を選択");
-        });
-        // 本来は UI から選ばせるが、今回は即決定
-        //Debug.Log($"{gameObject.name} が攻撃コマンドを選択");
-        //HasSelectedCommand = true;
+            var uiManager = GameObject.FindObjectOfType<TargetSelectionUIManager>();
 
+            if ( command is AttackCommand)
+            {
+                // 敵リストを取得
+                var enemies = GameObject.Find("EnemyUnits").GetComponentsInChildren<EnemyUnit>(true);
+                var enemyList = new List<EnemyUnit>(enemies);
+                // UIを開いてターゲットを選ばせる
+                uiManager.Show(enemyList, enemy =>
+                {
+                    _selectedTarget = enemy;
+                    HasSelectedCommand = true;
+                    Debug.Log($"{name} のターゲットが {enemy.name} に決定された！");
+                    uiManager.AttackCommand_Close();
+                    CommandUI.Instance.Close();
+                });
+            }
+            else
+            {            
+                // 防御など他のコマンドならここで完了
+                HasSelectedCommand = true;
+            }
+        });
+        //SelectedCommand = new AttackCommand();
     }
 
     public void ExecutePlayerAction()
