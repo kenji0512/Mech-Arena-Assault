@@ -1,3 +1,4 @@
+ï»¿using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,45 +15,96 @@ public class PlayerUnit : UnitBase
 
     protected override void Awake()
     {
-        base.Awake();        // ƒvƒŒƒCƒ„[ê—p‰Šú‰»‚È‚Ç
+        base.Awake();        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å°‚ç”¨åˆæœŸåŒ–ãªã©
+    }
+    private async void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.M)) // Mã‚­ãƒ¼ã§ãƒ†ã‚¹ãƒˆ
+        {
+            var pos = await InputManager.Instance.WaitForTileClick(new List<Vector2Int> {
+            new Vector2Int(2, 2),
+            new Vector2Int(2, 3),
+            new Vector2Int(3, 3)
+        });
 
+            Debug.Log($"ã‚¯ãƒªãƒƒã‚¯ã—ãŸã®ã¯ {pos}");
+        }
     }
     protected override void OnUnitDestroyed()
     {
         base.OnUnitDestroyed();
-        IsDestroyed = true;
-        gameObject.SetActive(false); // ‚Ü‚½‚ÍƒAƒjƒ[ƒVƒ‡ƒ“Ä¶‚È‚Ç
+        _IsDestroyed = true;
+        gameObject.SetActive(false); // ã¾ãŸã¯ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿãªã©
+    }
+    public async UniTask SelectMove()
+    {
+        // â‘  æ—¢å­˜ãƒã‚¤ãƒ©ã‚¤ãƒˆã‚’å…¨éƒ¨æ¶ˆã™
+        MapManager.Instance.ClearHighlights();
+
+        // â‘¡ æ•µã®æ”»æ’ƒç¯„å›²ã‚’èµ¤ã§è¡¨ç¤º
+        var enemies = FindObjectsOfType<EnemyUnit>();
+        foreach (var enemy in enemies)
+        {
+            if (enemy._IsDestroyed) continue;
+
+            var attackTiles = MapManager.Instance.GetAttackRangeTiles(enemy._GridPosition, enemy._AttackRange);
+            MapManager.Instance.HighlightTiles(attackTiles, TileHighlightType.Attack);
+        }
+
+        // â‘¢ ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç§»å‹•å¯èƒ½ç¯„å›²ã‚’é’ã§è¡¨ç¤º
+        var movableTiles = MapManager.Instance.GetReachableTiles(_GridPosition, _MoveRange);
+        MapManager.Instance.HighlightTiles(movableTiles, TileHighlightType.Move);
+
+        // â‘£ ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒã‚¯ãƒªãƒƒã‚¯ã—ãŸã‚¿ã‚¤ãƒ«ã‚’å¾…ã¤ï¼ˆè‡ªä½œ InputManager ãªã©ã‚’åˆ©ç”¨ï¼‰
+        Vector2Int targetGrid = await InputManager.Instance.WaitForTileClick(movableTiles);
+
+        // â‘¤ å®Ÿéš›ã«ç§»å‹•å‡¦ç†
+        Tile targetTile = MapManager.Instance.GetTileAt(targetGrid);
+        await MoveToTile(targetTile);
+
+        // â‘¥ ãƒã‚¤ãƒ©ã‚¤ãƒˆã‚’æ¶ˆã™ï¼ˆå¿…è¦ãªã‚‰æ®‹ã—ã¦ã‚‚OKï¼‰
+        MapManager.Instance.ClearHighlights();
     }
 
     public void SelectCommand()
     {
+        Debug.Log("SelectCommand() å‘¼ã³å‡ºã•ã‚ŒãŸ");
+
         HasSelectedCommand = false;
-        // UI‚ğŠJ‚¢‚ÄƒvƒŒƒCƒ„[‚É“ü—Í‚³‚¹‚é
+        // UIã‚’é–‹ã„ã¦ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«å…¥åŠ›ã•ã›ã‚‹
         CommandUI.Instance.Open(this, command =>
         {
             SelectedCommand = command;
             //HasSelectedCommand = true;
-            Debug.Log($"{gameObject.name} ‚ª {command.GetType().Name} ‚ğ‘I‘ğ");
+            Debug.Log($"{gameObject.name} ãŒ {command.GetType().Name} ã‚’é¸æŠ");
             var uiManager = GameObject.FindObjectOfType<TargetSelectionUIManager>();
 
-            if ( command is AttackCommand)
+            if (command is AttackCommand)
             {
-                // “GƒŠƒXƒg‚ğæ“¾
+                // æ”»æ’ƒç¯„å›²ãƒã‚¹ã‚’ãƒã‚¤ãƒ©ã‚¤ãƒˆ
+                var attackTiles = MapManager.Instance.GetAttackRangeTiles(_GridPosition, _AttackRange); // â†è‡ªãƒ¦ãƒ‹ãƒƒãƒˆã®ä½ç½®ã¨å°„ç¨‹
+                MapManager.Instance.HighlightTiles(attackTiles);
+
+                // æ•µãƒªã‚¹ãƒˆã‚’å–å¾—
                 var enemies = GameObject.Find("EnemyUnits").GetComponentsInChildren<EnemyUnit>(true);
                 var enemyList = new List<EnemyUnit>(enemies);
-                // UI‚ğŠJ‚¢‚Äƒ^[ƒQƒbƒg‚ğ‘I‚Î‚¹‚é
+
+                // UIã‚’é–‹ã„ã¦ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’é¸ã°ã›ã‚‹
                 uiManager.Show(enemyList, enemy =>
                 {
                     _selectedTarget = enemy;
                     HasSelectedCommand = true;
-                    Debug.Log($"{name} ‚Ìƒ^[ƒQƒbƒg‚ª {enemy.name} ‚ÉŒˆ’è‚³‚ê‚½I");
+                    Debug.Log($"{name} ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆãŒ {enemy.name} ã«æ±ºå®šã•ã‚ŒãŸï¼");
+
+                    // UI é–‰ã˜ã‚‹
                     uiManager.AttackCommand_Close();
                     CommandUI.Instance.Close();
+                    MapManager.Instance.ClearHighlights(); // ãƒã‚¤ãƒ©ã‚¤ãƒˆã‚‚ã‚¯ãƒªã‚¢
                 });
             }
             else
-            {            
-                // –hŒä‚È‚Ç‘¼‚ÌƒRƒ}ƒ“ƒh‚È‚ç‚±‚±‚ÅŠ®—¹
+            {
+                // é˜²å¾¡ãªã©ä»–ã®ã‚³ãƒãƒ³ãƒ‰ãªã‚‰ã“ã“ã§å®Œäº†
                 HasSelectedCommand = true;
             }
         });
@@ -61,31 +113,33 @@ public class PlayerUnit : UnitBase
 
     public void ExecutePlayerAction()
     {
-        Debug.Log($"{gameObject.name} ‚ªUŒ‚I");
-        // “G‚Éƒ_ƒ[ƒW‚ğ—^‚¦‚éˆ—‚È‚Ç
+        Debug.Log($"{gameObject.name} ãŒæ”»æ’ƒï¼");
+        // æ•µã«ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹å‡¦ç†ãªã©
         if (!HasSelectedCommand)
         {
-            Debug.LogWarning("ƒRƒ}ƒ“ƒh–¢‘I‘ğ‚Å‚·");
+            Debug.LogWarning("ã‚³ãƒãƒ³ãƒ‰æœªé¸æŠã§ã™");
             return;
         }
-        // Àsˆ—iˆÚ“®EUŒ‚‚È‚Çj
+        // å®Ÿè¡Œå‡¦ç†ï¼ˆç§»å‹•ãƒ»æ”»æ’ƒãªã©ï¼‰
 
-        // ˆÚ“®‚âUŒ‚‚ÌƒRƒ}ƒ“ƒhÀsˆ—‚ğ‚±‚±‚É’Ç‰Á—\’è
-        Debug.Log($"{UnitName} ‚ªƒRƒ}ƒ“ƒh‚ğÀs‚µ‚Ü‚µ‚½");
+        // ç§»å‹•ã‚„æ”»æ’ƒã®ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œå‡¦ç†ã‚’ã“ã“ã«è¿½åŠ äºˆå®š
+        Debug.Log($"{UnitName} ãŒã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã—ã¾ã—ãŸ");
+        SelectedCommand?.Execute(this);
+        ResetCommand(); // å¿˜ã‚Œãšã«ãƒªã‚»ãƒƒãƒˆ
     }
-    // UI˜AŒg‚â“ü—Íˆ——pƒƒ\ƒbƒh‚È‚Ç•K—v‚É‰‚¶‚Ä’Ç‰Á
+    // UIé€£æºã‚„å…¥åŠ›å‡¦ç†ç”¨ãƒ¡ã‚½ãƒƒãƒ‰ãªã©å¿…è¦ã«å¿œã˜ã¦è¿½åŠ 
     public void ResetCommand()
     {
         SelectedCommand = null;
         HasSelectedCommand = false;
-        IsDefending = false;// ƒ^[ƒ“I—¹‚ÉƒŠƒZƒbƒg
+        IsDefending = false;// ã‚¿ãƒ¼ãƒ³çµ‚äº†æ™‚ã«ãƒªã‚»ãƒƒãƒˆ
     }
     public override void TakeDamage(PartType part, int damage)
     {
         if (IsDefending)
         {
-            damage /= 2; // –hŒä’†‚Íƒ_ƒ[ƒW”¼Œ¸
-            Debug.Log($"{name} ‚Í–hŒä‚µ‚Ä‚¢‚½‚½‚ßAƒ_ƒ[ƒW‚ğ”¼Œ¸I");
+            damage /= 2; // é˜²å¾¡ä¸­ã¯ãƒ€ãƒ¡ãƒ¼ã‚¸åŠæ¸›
+            Debug.Log($"{name} ã¯é˜²å¾¡ã—ã¦ã„ãŸãŸã‚ã€ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’åŠæ¸›ï¼");
         }
 
         base.TakeDamage(part, damage);

@@ -4,7 +4,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    public ActionExecuter actionExcuter;
+    public ActionExecuter _actionExcuter;
+
+    private StageData _selectedStage;
 
     private void Awake()
     {
@@ -20,9 +22,9 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        if (actionExcuter == null)
+        if (_actionExcuter == null)
         {
-            actionExcuter = new ActionExecuter();
+            _actionExcuter = new ActionExecuter();
         }
     }
 }

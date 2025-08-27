@@ -1,4 +1,5 @@
-﻿using UniRx;
+﻿using Cysharp.Threading.Tasks;
+using UniRx;
 using UnityEngine;
 //UIでコマンド選ばせるフェーズ
 public class TurnState_PlayerTurn : ITurnState
@@ -30,16 +31,26 @@ public class TurnState_PlayerTurn : ITurnState
     }
     private void StartSelectingNextUnit()
     {
-        if(_currentIndex >= _playerUnit.Length)
+        if (_currentIndex >= _playerUnit.Length)
         {
             _turnManager.ChangeState(BattleState.PlayerAction);
             return;
         }
 
         PlayerUnit player = _playerUnit[_currentIndex];
-        player.SelectCommand();
 
-        //コマンド選択完了を監視(UniRx)
+        // 移動 → コマンド選択の流れを組み合わせ
+        SelectMoveAndCommandAsync(player).Forget();
+    }
+    private async UniTaskVoid SelectMoveAndCommandAsync(PlayerUnit player)
+    {
+        Debug.Log("SelectMoveAndCommandAsync 開始");
+
+        await player.SelectMove();      //  ① 移動
+        Debug.Log("移動完了、コマンド選択へ");
+
+        player.SelectCommand();         //  ② コマンド選択（既存のやつ）
+
         Observable.EveryUpdate()
             .Where(_ => player.HasSelectedCommand)
             .Take(1)
@@ -51,10 +62,7 @@ public class TurnState_PlayerTurn : ITurnState
     }
     public void Execute()
     {        // 全ユニットがコマンド選択完了したら
-        //if (AllPlayerUnitsSelected())
-        //{
-        //    _turnManager.ChangeState(BattleState.PlayerAction);
-        //}
+
     }
     public void Exit()
     {

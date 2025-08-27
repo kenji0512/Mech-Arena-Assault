@@ -34,3 +34,8 @@ public enum BattleState
     EnemyTurn,      // “Gs“®’†
     BattleEnd       // Ÿ—˜ or ”s–k
 }
+public enum TileHighlightType
+{
+    Move,
+    Attack
+}

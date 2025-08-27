@@ -22,6 +22,11 @@ public class TurnState_PlayerAction : ITurnState
 
         //// 少し待ってから敵ターンへ（今は即遷移）
         //_turnManager.ChangeState(BattleState.EnemyTurn);
+
+        if (_turnManager.IsBattleOver()) return;
+
+        _turnManager.ChangeState(BattleState.EnemyTurn);
+
         _playerUnits = GameObject.Find("PlayerUnits").GetComponentsInChildren<PlayerUnit>();
         _currentIndex = 0;
 

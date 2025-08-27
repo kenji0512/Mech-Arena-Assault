@@ -7,6 +7,8 @@ public class TurnManager : MonoBehaviour
     private Dictionary<BattleState, ITurnState> _states = new();
     private ITurnState _currentState;
     private readonly ReactiveProperty<BattleState> _state = new();
+    private BattleManager _battleManager;
+
     public bool IsPlayerWin { get; private set; }
 
     public IReadOnlyReactiveProperty<BattleState> State => _state;
@@ -21,13 +23,29 @@ public class TurnManager : MonoBehaviour
     }
     private void Start()
     {
+        _battleManager = FindObjectOfType<BattleManager>(); 
         ChangeState(BattleState.Init);
-        _state.Subscribe(OnStateChanged).AddTo(this);
     }
-    private void OnStateChanged(BattleState newState)
+    public bool IsBattleOver()
     {
-        Debug.Log($"ó‘Ô‘JˆÚ: {newState}");
+        var playerUnits = _battleManager.GetPlayerUnits();
+        var enemyUnits = _battleManager.GetEnemyUnits();
+
+        bool allPlayersDead = playerUnits.TrueForAll(p => p.IsDead);
+        bool allEnemiesDead = enemyUnits.TrueForAll(e => e.IsDead);
+
+        if (allPlayersDead) { GameOver(false); return true; }
+        if (allEnemiesDead) { GameOver(true); return true; }
+
+        return false;
     }
+
+    void GameOver(bool playerWon)
+    {
+        SetBattleResult(playerWon);
+        ChangeState(BattleState.BattleEnd);
+    }
+
     public void ChangeState(BattleState newState)
     {
         Debug.Log($"ó‘Ô‘JˆÚ: {_state.Value} ¨ {newState}");
@@ -37,6 +55,7 @@ public class TurnManager : MonoBehaviour
         _state.Value = newState;
         _currentState.Enter();
     }
+
     public void Update()
     {
         _currentState?.Execute();
