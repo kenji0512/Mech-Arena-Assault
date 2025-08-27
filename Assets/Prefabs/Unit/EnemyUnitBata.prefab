@@ -918,9 +918,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mechData: {fileID: 11400000, guid: 4a7a629b26a6ff9478aadcf67395edf2, type: 2}
+  _MoveRange: 3
+  _AttackRange: 1
   _ShootPower: 5
   _MeleePower: 3
-  _behaviorData: {fileID: 0}
+  _behaviorData: {fileID: 11400000, guid: 6e2bed132906f8d41a019efc16bbdb8d, type: 2}
 --- !u!1 &9220873063915546017
 GameObject:
   m_ObjectHideFlags: 0

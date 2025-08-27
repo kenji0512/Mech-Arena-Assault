@@ -1,6 +1,7 @@
+using System;
+using UnityEditor.Build.Content;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 // プレイヤーが操作するUI
 public class CommandUI : MonoBehaviour
@@ -8,23 +9,23 @@ public class CommandUI : MonoBehaviour
     public static CommandUI Instance;
     private System.Action<ICommand> _onCommandSelected;
 
-    [SerializeField] private GameObject _root;
+    [SerializeField] private GameObject _panel;
     [SerializeField] private Button _attackButton;
-    [SerializeField] private Button defendButton;
+    [SerializeField] private Button _defendButton;
+    [SerializeField] private Button _waitButton;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        _root.SetActive(false);
+        _panel.SetActive(false);
     }
     public void Open(PlayerUnit player, System.Action<ICommand> onSelected)
     {
         this._onCommandSelected = onSelected;
-        _root.SetActive(true);
+        _panel.SetActive(true);
 
-        // ボタンにイベントを設定（例: 攻撃ボタン）
         _attackButton.onClick.RemoveAllListeners();
         _attackButton.onClick.AddListener(() =>
         {
@@ -32,16 +33,22 @@ public class CommandUI : MonoBehaviour
             //Close();
         });
 
-        defendButton.onClick.RemoveAllListeners();
-        defendButton.onClick.AddListener(() =>
+        _defendButton.onClick.RemoveAllListeners();
+        _defendButton.onClick.AddListener(() =>
         {
             onSelected?.Invoke(new DefendCommand());
+            Close();
+        });
+        _waitButton.onClick.RemoveAllListeners();
+        _waitButton.onClick.AddListener(() =>
+        {
+            _onCommandSelected?.Invoke(new WaitCommand());
             Close();
         });
         // 他のコマンドも同様に…
     }
     public void Close()
     {
-        _root.SetActive(false);
+        _panel.SetActive(false);
     }
 }

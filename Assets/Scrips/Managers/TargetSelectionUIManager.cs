@@ -67,6 +67,15 @@ public class TargetSelectionUIManager : MonoBehaviour
                 }
             });
         }
+        _confirmButton.onClick.AddListener(() =>
+        {
+            if (_selectedTarget != null)
+            {
+                _onTargetConfirmed?.Invoke(_selectedTarget);
+                _panel.SetActive(false);
+                MapManager.Instance.ClearHighlights(); // ‚±‚±‚Å‰ğœI
+            }
+        });
     }
     public void AttackCommand_Close()
     {

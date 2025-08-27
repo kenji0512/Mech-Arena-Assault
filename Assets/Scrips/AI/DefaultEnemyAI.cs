@@ -67,7 +67,7 @@ public class DefaultEnemyAI : IEnemyAI
 
         Debug.Log($"{unit.UnitName} は遠距離攻撃を実行！");
         var action = new AttackAction(unit, target, unit._ShootPower);
-        GameManager.Instance.actionExcuter.ExcuteAction(action);
+        GameManager.Instance._actionExcuter.ExcuteAction(action);
     }
 
     private void MeleeAttack(EnemyUnit unit)
@@ -81,7 +81,7 @@ public class DefaultEnemyAI : IEnemyAI
 
         Debug.Log($"{unit.UnitName} は近接攻撃を選択！");
         var action = new MeleeAction(unit, target, unit._MeleePower);
-        GameManager.Instance.actionExcuter.ExcuteAction(action);
+        GameManager.Instance._actionExcuter.ExcuteAction(action);
     }
     private void Wait(EnemyUnit unit)
     {
