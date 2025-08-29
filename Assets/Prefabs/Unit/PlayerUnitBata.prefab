@@ -998,8 +998,8 @@ Transform:
   m_GameObject: {fileID: 8990807749606773085}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.820488, y: 2.3959212, z: 18.806644}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 127614948443513011}
@@ -1026,4 +1026,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mechData: {fileID: 11400000, guid: 6945e5a6bba0b594a8f2c1a64b140069, type: 2}
+  _MoveRange: 3
+  _AttackRange: 2
   _targetUI: {fileID: 0}
